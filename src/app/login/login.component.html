@@ -1,0 +1,6 @@
+<form #createForm="ngForm" (ngSubmit)="createUser(createForm.value)">
+  <input type="text" name="email"  ngModel >
+  <input type="text" name="password"  ngModel>
+  <input type="submit">
+</form>
+<div *ngIf="errorMessage" [ngClass] = "'error'"> {{errorMessage}} </div> 
