@@ -3,11 +3,13 @@ const bodyParser = require('body-parser');
 const http = require('http');
 const path = require('path');
 var app = express();
-var api = require ('./server/router/apiservers/api');
+var api = require ('./server/router/api');
+var auth = require("./server/middleware/passportAuth")(); 
 
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
+// app.use(auth.initialize());
 
 app.use(express.static(path.join(__dirname,'dist')));
 

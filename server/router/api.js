@@ -4,18 +4,27 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 mongoose.Promise = global.Promise;
 
-let User = require('../models/user.model');
+// json & passport auth
+
+const jwt = require('jsonwebtoken');
+const passport = require('passport');
+
+// Set up middleware
+const requireAuth = passport.authenticate('jwt', { session: false });
+  // Initialize passport for use
+  router.use(passport.initialize());
+
+  // Bring in defined Passport Strategy
+  require('../middleware/passportAuth')(passport);
+
+// var jwt = require("jwt-simple");
 // var passport = require('passport');
-// LocalStrategy = require('passport-local').Strategy;
-var _ = require("lodash");
-var jwt = require('jsonwebtoken');
-var config= require('../config/config');
+var cfg = require ('../config/config')
 
-var passport = require("passport");
-var passportJWT = require("passport-jwt");
+let User = require('../models/user.model');
 
-var ExtractJwt = passportJWT.ExtractJwt;
-var JwtStrategy = passportJWT.Strategy;
+// var auth = require("../middleware/passportAuth")(); 
+
 
 var db ='mongodb://localhost:27017/profile'
 mongoose.connect(db,{
@@ -23,40 +32,67 @@ mongoose.connect(db,{
     /* other options */
   });
 
-  router.post('/signup', function(req, res){
-    let user = new User({
-        email: req.body.email,
-        password: req.body.password
-    });
-    user.save(function(err, data){
-        if(err){
-            return res.json({error: true});
-            console.log(err);
-        }
-        res.json({error:false});
-    })
-});
+// router.use(auth.initialize())
 
-router.post('/authenticate', function(req, res){
-    let data = {
-        email: req.body.email,
-        password: req.body.password
-    };
-    User.findOne(data).lean().exec(function(err, user){
-        if(err){
+  router.post('/signup', function(req, res){
+    var email=req.body.email;
+    var password = req.body.password;
+    User.findOne({'email':email},(err,user)=>{
+        if (err){
             return res.json({error: true});
         }
-        if(!user){
-            return res.status(404).json({'message':'User not found!'});
+        if (user){
+             res.json({'message':'User already!'});
+            
+        }
+        var newUser= new User;
+        newUser.email = email;
+        newUser.password = newUser.encryptPassword(password);
+        newUser.save(function(err,result){
+            if(err){
+                return res.json({error: true}); 
+            }
+            res.send(result);
+        })
+
+    })
+  });
+
+  router.post('/authenticate', function(req, res){
+    var email=req.body.email;
+    var password = req.body.password;
+    User.findOne({'email':email},(err,user)=>{
+        if (err){
+            return res.json({error: true});
+        }
+        if (!user){
+             res.json({message: 'No user found.'});
+            
+        }
+        if (!user.validPassword(password)) {
+            return res.send(null, false, {message: 'Wrong password.'});
         }
         console.log(user);
-
-        let token = jwt.sign(user,config.jwt_secret, {
-            expiresIn: 1440 // expires in 1 hour
+        var payload = {
+            id: user.id
+        };
+        var token = jwt.encode(payload, cfg.jwtSecret,{
+            expiresIn: 10080 
         });
-        res.json({error:false, token: token});
+        res.json({
+            token: token
+        });
     })
-});
+  });
+  router.get('/profile',requireAuth, (req, res) => {
+    Console.log('authenticated');
+    res.send('profile is authenicated');
+  });
+ // let token = jwt.sign(user,config.jwt_secret, {
+        //     expiresIn: 1440 // expires in 1 hour
+        // });
+        // res.json({error:false, token: token});
+
 // router.post('/login', (req, res) => {
 
 // });
