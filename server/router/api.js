@@ -4,12 +4,12 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 mongoose.Promise = global.Promise;
 
-let User = require('./models/user.model');
+let User = require('../models/user.model');
 // var passport = require('passport');
 // LocalStrategy = require('passport-local').Strategy;
 var _ = require("lodash");
 var jwt = require('jsonwebtoken');
-var config= require('../config');
+var config= require('../config/config');
 
 var passport = require("passport");
 var passportJWT = require("passport-jwt");
@@ -31,6 +31,7 @@ mongoose.connect(db,{
     user.save(function(err, data){
         if(err){
             return res.json({error: true});
+            console.log(err);
         }
         res.json({error:false});
     })

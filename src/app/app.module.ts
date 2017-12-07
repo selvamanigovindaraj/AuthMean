@@ -15,7 +15,7 @@ import {
   AuthGuardService as AuthGuard, AuthGuardService 
 } from './auth/auth-guard.service';
 import {AuthService} from './auth/auth.service';
-import { JwtHelperService } from '@auth0/angular-jwt';
+import {JwtModule, JwtHelperService,JWT_OPTIONS } from '@auth0/angular-jwt';
 
 // App services
 import { LoginService } from './appservice/login.service'
@@ -35,20 +35,27 @@ const ROUTES :Routes= [
   declarations: [
     AppComponent,
     LoginComponent,
-    ProfileComponent
+    ProfileComponent,
   ],
   imports: [
     BrowserModule,
     FormsModule,
     HttpModule,
     HttpClientModule,
+    JwtModule.forRoot({
+      config: {
+        tokenGetter: () => {
+          return localStorage.getItem('token');
+        },skipWhenExpired: true,
+        whitelistedDomains: ['localhost:3001']}}),
     RouterModule.forRoot(ROUTES)
   ],
   providers: [
     LoginService,
-    AuthGuardService,
+    AuthGuard,
     AuthService,
     JwtHelperService
+    
     ],
   bootstrap: [AppComponent]
 })

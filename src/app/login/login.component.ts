@@ -17,7 +17,7 @@ export class LoginComponent implements OnInit {
   }
   createUser(value){
     this._dataService.login(value)
-    .then(
+    .subscribe(
       () => this.gotoview()
     )
   }
