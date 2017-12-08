@@ -8,14 +8,13 @@ mongoose.Promise = global.Promise;
 
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
-
+var jwtverify= require ('../middleware/verifyToken')
 // Set up middleware
-const requireAuth = passport.authenticate('jwt', { session: false });
-  // Initialize passport for use
-  router.use(passport.initialize());
+var requireAuth = passport.authenticate('jwt', { session: false });
+ 
 
   // Bring in defined Passport Strategy
-  require('../middleware/passportAuth')(passport);
+  require('../middleware/passport')(passport);
 
 // var jwt = require("jwt-simple");
 // var passport = require('passport');
@@ -39,7 +38,7 @@ mongoose.connect(db,{
     var password = req.body.password;
     User.findOne({'email':email},(err,user)=>{
         if (err){
-            return res.json({error: true});
+             res.json({error: true});
         }
         if (user){
              res.json({'message':'User already!'});
@@ -50,7 +49,7 @@ mongoose.connect(db,{
         newUser.password = newUser.encryptPassword(password);
         newUser.save(function(err,result){
             if(err){
-                return res.json({error: true}); 
+                res.json({error: true}); 
             }
             res.send(result);
         })
@@ -59,28 +58,26 @@ mongoose.connect(db,{
   });
 
   router.post('/authenticate', function(req, res){
-    var email=req.body.email;
-    var password = req.body.password;
+    let email=req.body.email;
+    let password = req.body.password;
     User.findOne({'email':email},(err,user)=>{
         if (err){
-            return res.json({error: true});
+             res.json({error: true});
         }
         if (!user){
              res.json({message: 'No user found.'});
             
         }
         if (!user.validPassword(password)) {
-            return res.send(null, false, {message: 'Wrong password.'});
+             res.send(null,  {message: 'Wrong password.'});
         }
         console.log(user);
         var payload = {
             id: user.id
         };
-        var token = jwt.encode(payload, cfg.jwtSecret,{
-            expiresIn: 10080 
-        });
+        var token = jwt.sign(payload, cfg.jwtSecret);
         res.json({
-            token: token
+            token:'JWT'+ token
         });
     })
   });

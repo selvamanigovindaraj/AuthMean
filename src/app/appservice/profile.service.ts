@@ -12,6 +12,7 @@ export class ProfileService {
         private  authservice:AuthService
     ) { }
     getprofile(): Observable<any>{
+        console.log(this.authservice.token);
         let headers = new Headers({ 'Authorization': 'Bearer ' + this.authservice.token });
         let options = new RequestOptions({ headers: headers });
 

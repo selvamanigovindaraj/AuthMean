@@ -18,7 +18,9 @@ import {AuthService} from './auth/auth.service';
 import {JwtModule, JwtHelperService,JWT_OPTIONS } from '@auth0/angular-jwt';
 
 // App services
-import { LoginService } from './appservice/login.service'
+import { LoginService } from './appservice/login.service';
+import { ProfileService } from './appservice/profile.service';
+
 
 const ROUTES :Routes= [
   
@@ -54,8 +56,8 @@ const ROUTES :Routes= [
     LoginService,
     AuthGuard,
     AuthService,
-    JwtHelperService
-    
+    JwtHelperService,
+    ProfileService
     ],
   bootstrap: [AppComponent]
 })
